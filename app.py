@@ -191,7 +191,7 @@ def main():
             inputs=textbox,
             outputs=[textbox, chatbot],
             fn=process_example,
-            cache_examples=True,
+            cache_examples=False,
         )
 
         textbox.submit(
