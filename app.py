@@ -8,6 +8,8 @@ from distutils.util import strtobool
 
 from llama2_wrapper import LLAMA2_WRAPPER
 
+import logging
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -25,6 +27,13 @@ def main():
         default=False,
         help="Whether to use bitsandbytes 8 bit.",
     )
+    parser.add_argument(
+        "--no-gradio-queue",
+        type=bool,
+        default=True,
+        help="Whether to use no-gradio-queue.",
+    )
+
     parser.add_argument(
         "--share",
         type=bool,
@@ -95,18 +104,20 @@ def main():
     ) -> Iterator[list[tuple[str, str]]]:
         if max_new_tokens > MAX_MAX_NEW_TOKENS:
             raise ValueError
-
-        history = history_with_input[:-1]
-        generator = llama2_wrapper.run(
-            message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
-        )
         try:
-            first_response = next(generator)
-            yield history + [(message, first_response)]
-        except StopIteration:
-            yield history + [(message, "")]
-        for response in generator:
-            yield history + [(message, response)]
+            history = history_with_input[:-1]
+            generator = llama2_wrapper.run(
+                message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
+            )
+            try:
+                first_response = next(generator)
+                yield history + [(message, first_response)]
+            except StopIteration:
+                yield history + [(message, "")]
+            for response in generator:
+                yield history + [(message, response)]
+        except Exception as e:
+            logging.exception(e)
 
     def process_example(message: str) -> tuple[str, list[tuple[str, str]]]:
         generator = generate(message, [], DEFAULT_SYSTEM_PROMPT, 1024, 1, 0.95, 50)
