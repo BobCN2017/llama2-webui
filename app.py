@@ -320,13 +320,13 @@ def main():
             outputs=[chatbot, saved_input],
             queue=False,
             api_name=False,
-        )
-
+        )    
+    demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
     
-    try:
-        demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
-    except Exception as e:
-        logging.exception(e)
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level="INFO", format='%(asctime)s %(levelname)s - %(filename)s - %(lineno)s - %(message)s')
+    try:
+        main()
+    except Exception as e:
+        logging.exception(e)
