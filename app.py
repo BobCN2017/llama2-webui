@@ -322,8 +322,11 @@ def main():
             api_name=False,
         )
 
-    demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
-
+    
+    try:
+        demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
+    except Exception as e:
+        logging.exception(e)
 
 if __name__ == "__main__":
     main()
