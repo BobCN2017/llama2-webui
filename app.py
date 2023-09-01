@@ -321,9 +321,14 @@ def main():
             queue=False,
             api_name=False,
         )
-
+    logging.debug("before queue...")
     demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
 
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level="INFO", format='%(asctime)s %(levelname)s - %(filename)s - %(lineno)s - %(message)s')
+    try:
+        logging.debug("start...")
+        main()
+    except Exception as e:
+        logging.exception(e)
