@@ -326,7 +326,7 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG", format='%(asctime)s %(levelname)s - %(filename)s - %(lineno)s - %(message)s')
+    logging.basicConfig(level="INFO", format='%(asctime)s %(levelname)s - %(filename)s - %(lineno)s - %(message)s')
     try:
         main()
     except Exception as e:
