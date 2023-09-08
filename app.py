@@ -136,7 +136,11 @@ def main():
                 f"The accumulated input is too long ({input_token_length} > {MAX_INPUT_TOKEN_LENGTH}). Clear your chat history and try again."
             )
 
-    with gr.Blocks(css="style.css") as demo:
+    CSS ="""
+        .contain { display: flex; flex-direction: column;}
+        #component-0 #component-2 #component-3 { height:65vh !important; }
+    """
+    with gr.Blocks(css=CSS) as demo:
         gr.Markdown(DESCRIPTION)
 
         with gr.Group():
@@ -191,19 +195,19 @@ def main():
                 value=50,
             )
 
-        gr.Examples(
-            examples=[
-                "Hello there! How are you doing?",
-                "Can you explain briefly to me what is the Python programming language?",
-                "Explain the plot of Cinderella in a sentence.",
-                "How many hours does it take a man to eat a Helicopter?",
-                "Write a 100-word article on 'Benefits of Open-Source in AI research'",
-            ],
-            inputs=textbox,
-            outputs=[textbox, chatbot],
-            fn=process_example,
-            cache_examples=False,
-        )
+        # gr.Examples(
+        #     examples=[
+        #         "Hello there! How are you doing?",
+        #         "Can you explain briefly to me what is the Python programming language?",
+        #         "Explain the plot of Cinderella in a sentence.",
+        #         "How many hours does it take a man to eat a Helicopter?",
+        #         "Write a 100-word article on 'Benefits of Open-Source in AI research'",
+        #     ],
+        #     inputs=textbox,
+        #     outputs=[textbox, chatbot],
+        #     fn=process_example,
+        #     cache_examples=False
+        # )
 
         textbox.submit(
             fn=clear_and_save_textbox,
