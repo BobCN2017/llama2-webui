@@ -13,7 +13,6 @@ import logging
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--iter", type=int, default=5, help="Number of iterations")
     parser.add_argument("--model_path", type=str, default="", help="model path")
     parser.add_argument(
         "--backend_type",
@@ -73,6 +72,15 @@ def main():
 
     DESCRIPTION = """
     # llama2-webui
+<<<<<<< HEAD
+=======
+
+    This is a chatbot based on Llama-2. 
+    """
+    DESCRIPTION2 = """
+    - Supporting models: [Llama-2-7b](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
+    - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
+>>>>>>> upstream/main
     """
 
     def clear_and_save_textbox(message: str) -> tuple[str, str]:
@@ -208,6 +216,8 @@ def main():
         #     fn=process_example,
         #     cache_examples=False
         # )
+
+        gr.Markdown(DESCRIPTION2)
 
         textbox.submit(
             fn=clear_and_save_textbox,
