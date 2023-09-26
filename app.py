@@ -72,18 +72,10 @@ def main():
 
     DESCRIPTION = """
     # llama2-webui
-<<<<<<< HEAD
-=======
-
-    This is a chatbot based on Llama-2. 
-    """
-    DESCRIPTION2 = """
-    - Supporting models: [Llama-2-7b](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)/[13b](https://huggingface.co/llamaste/Llama-2-13b-chat-hf)/[70b](https://huggingface.co/llamaste/Llama-2-70b-chat-hf), [Llama-2-GPTQ](https://huggingface.co/TheBloke/Llama-2-7b-Chat-GPTQ), [Llama-2-GGML](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML), [CodeLlama](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GPTQ) ...
-    - Supporting model backends: [tranformers](https://github.com/huggingface/transformers), [bitsandbytes(8-bit inference)](https://github.com/TimDettmers/bitsandbytes), [AutoGPTQ(4-bit inference)](https://github.com/PanQiWei/AutoGPTQ), [llama.cpp](https://github.com/ggerganov/llama.cpp)
->>>>>>> upstream/main
     """
 
     def clear_and_save_textbox(message: str) -> tuple[str, str]:
+        logging.info("start clear_and_save_textbox")
         return "", message
 
     def display_input(
@@ -110,6 +102,7 @@ def main():
         top_p: float,
         top_k: int,
     ) -> Iterator[list[tuple[str, str]]]:
+        logging.info("start generate...")
         if max_new_tokens > MAX_MAX_NEW_TOKENS:
             raise ValueError
         try:
@@ -217,7 +210,7 @@ def main():
         #     cache_examples=False
         # )
 
-        gr.Markdown(DESCRIPTION2)
+        # gr.Markdown(DESCRIPTION2)
 
         textbox.submit(
             fn=clear_and_save_textbox,
@@ -335,7 +328,7 @@ def main():
             queue=False,
             api_name=False,
         )    
-    demo.queue(max_size=20).launch(share=args.share,server_name="0.0.0.0")
+    demo.queue(max_size=20).launch(share=args.share)
     
 
 if __name__ == "__main__":
