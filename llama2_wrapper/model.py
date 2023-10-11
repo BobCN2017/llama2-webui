@@ -222,6 +222,7 @@ class LLAMA2_WRAPPER:
                 top_p=top_p,
                 temperature=temperature,
                 repeat_penalty=repetition_penalty,
+                stop=["Q:"],
                 **kwargs,
             )
             outputs = []
