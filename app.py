@@ -71,7 +71,7 @@ def main():
     )
 
     DESCRIPTION = """
-    # llama2-webui
+    # baichuan2-webui
     """
 
     def clear_and_save_textbox(message: str) -> tuple[str, str]:
