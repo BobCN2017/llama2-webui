@@ -2,6 +2,7 @@ import os
 import time
 import uuid
 from enum import Enum
+import logging
 from threading import Thread
 from typing import Any, Iterator, Union, List
 from llama2_wrapper.types import (
@@ -181,6 +182,7 @@ class LLAMA2_WRAPPER:
 
         return self.get_token_length(prompt)
 
+    
     def generate(
         self,
         prompt: str,
@@ -223,8 +225,11 @@ class LLAMA2_WRAPPER:
                 **kwargs,
             )
             outputs = []
+            import json
+            logging.info(f"generated result:")
             for part in result:
                 text = part["choices"][0]["text"]
+                # logging.info(f"generated text:{text}")
                 outputs.append(text)
                 yield "".join(outputs)
         else:
@@ -286,6 +291,7 @@ class LLAMA2_WRAPPER:
             The generated text.
         """
         prompt = get_prompt(message, chat_history, system_prompt)
+        logging.info(f"prompt:{prompt}")
         return self.generate(
             prompt, max_new_tokens, temperature, top_p, top_k, repetition_penalty
         )
@@ -758,10 +764,15 @@ def get_prompt(
     Yields:
         prompt string.
     """
-    texts = [f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n"]
+    # texts = [f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n"]
+    # for user_input, response in chat_history:
+    #     texts.append(f"{user_input.strip()} [/INST] {response.strip()} </s><s> [INST] ")
+    # texts.append(f"{message.strip()} [/INST]")
+
+    texts = [f"{system_prompt}\n"]
     for user_input, response in chat_history:
-        texts.append(f"{user_input.strip()} [/INST] {response.strip()} </s><s> [INST] ")
-    texts.append(f"{message.strip()} [/INST]")
+        texts.append(f"Q:{user_input.strip()} A:{response.strip()}")
+    texts.append(f"Q:{message.strip()} A:")
     return "".join(texts)
 
 
