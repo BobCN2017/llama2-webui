@@ -328,7 +328,7 @@ def main():
             queue=False,
             api_name=False,
         )    
-    demo.queue(max_size=20).launch(share=args.share)
+    demo.queue(max_size=20).launch(server_name="0.0.0.0",share=args.share)
     
 
 if __name__ == "__main__":
