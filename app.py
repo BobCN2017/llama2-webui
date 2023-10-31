@@ -159,7 +159,6 @@ def main():
     default_prompts_checkbox=False
     default_advanced_checkbox =False
     def convert_summary_to_prompt(summary):
-        logging.info(f"start convert_summary_to_prompt:{summary}")
         return prompts_container.get_prompt_by_summary(summary)
 
     def two_columns_list(tab_data, chatbot):
