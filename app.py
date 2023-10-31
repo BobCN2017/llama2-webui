@@ -82,12 +82,6 @@ def main():
         history.append((message, ""))
         return history
 
-    def display_input_from_prompt(
-        message: str, history: list[tuple[str, str]]
-    ) -> list[tuple[str, str]]:
-        message =convert_summary_to_prompt(message)
-        return display_input(message,history)
-    
     def delete_prev_fn(
         history: list[tuple[str, str]]
     ) -> tuple[list[tuple[str, str]], str]:
@@ -124,18 +118,6 @@ def main():
         except Exception as e:
             logging.exception(e)
 
-    def generate_for_prompt(
-        message: str,
-        history_with_input: list[tuple[str, str]],
-        system_prompt: str,
-        max_new_tokens: int,
-        temperature: float,
-        top_p: float,
-        top_k: int,
-    ) -> Iterator[list[tuple[str, str]]]:
-        message = convert_summary_to_prompt(message)
-        yield from generate(message,history_with_input,system_prompt,max_new_tokens,temperature,top_p,top_k)
-
     def check_input_token_length(
         message: str, chat_history: list[tuple[str, str]], system_prompt: str
     ) -> None:
@@ -147,70 +129,69 @@ def main():
                 f"The accumulated input is too long ({input_token_length} > {MAX_INPUT_TOKEN_LENGTH}). Clear your chat history and try again."
             )
 
-    def check_input_token_length_for_prompt(
-        message: str, chat_history: list[tuple[str, str]], system_prompt: str
-    ) -> None:
-        message = convert_summary_to_prompt(message)
-        return check_input_token_length(message=message,chat_history=chat_history,system_prompt=system_prompt)  
-
-
     prompts_container = PromtsContainer()
     prompts = prompts_container.get_prompts_tab_dict()
-    default_prompts_checkbox=False
-    default_advanced_checkbox =False
-    def convert_summary_to_prompt(summary):
+    default_prompts_checkbox = False
+    default_advanced_checkbox = False
+
+    def save_textbox_for_prompt(summary):
         return prompts_container.get_prompt_by_summary(summary)
 
     def two_columns_list(tab_data, chatbot):
         result = []
         for i in range(int(len(tab_data)/2)+1):
-            row =gr.Row()
+            row = gr.Row()
             with row:
                 for j in range(2):
                     index = 2*i+j
-                    if index >=len(tab_data):
+                    if index >= len(tab_data):
                         break
                     item = tab_data[index]
                     with gr.Group():
-                        # gr.HighlightedText([(f"{item['act']}","")],label="")
-                        gr.HTML(f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
-                        prompt_text = gr.Textbox(
+                        gr.HTML(
+                            f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
+                        prompt_text = gr.Button(
                                     label="",
                                     value=f"{item['summary']}",
-                                    container=False,
-                                    lines=3
+                                    size='sm'
                                 )
-                        prompt_text.focus(
-                                fn=display_input_from_prompt,
-                                inputs=[prompt_text, chatbot],
-                                outputs=chatbot,
-                                api_name=False,
-                                queue=False,
-                            ).then(
-                                fn=check_input_token_length_for_prompt,
-                                inputs=[prompt_text, chatbot, system_prompt],
-                                api_name=False,
-                                queue=False,
-                            ).success(
-                                fn=generate_for_prompt,
-                                inputs=[
-                                    prompt_text,
-                                    chatbot,
-                                    system_prompt,
-                                    max_new_tokens,
-                                    temperature,
-                                    top_p,
-                                    top_k,
-                                ],
-                                outputs=chatbot,
-                                api_name=False,
-                            )
+                        prompt_text.click(
+                            fn=save_textbox_for_prompt,
+                            inputs=prompt_text,
+                            outputs=saved_input,
+                            api_name=False,
+                            queue=True,
+                        ).then(
+                            fn=display_input,
+                            inputs=[saved_input, chatbot],
+                            outputs=chatbot,
+                            api_name=False,
+                            queue=True,
+                        ).then(
+                            fn=check_input_token_length,
+                            inputs=[saved_input, chatbot, system_prompt],
+                            api_name=False,
+                            queue=False,
+                        ).success(
+                            fn=generate,
+                            inputs=[
+                                saved_input,
+                                chatbot,
+                                system_prompt,
+                                max_new_tokens,
+                                temperature,
+                                top_p,
+                                top_k,
+                            ],
+                            outputs=chatbot,
+                            api_name=False,
+                        )
                 result.append(row)
         return result
     DESCRIPTION = """
     # baichuan2-webui
     """
-    CSS ="""
+    CSS = """
         .contain { display: flex; flex-direction: column;}
         #component-0 #component-1 #component-2 #component-4 #component-5 { height:71vh !important; }
         #component-0 #component-1 #component-24 > div:nth-child(2) { height:80vh !important; overflow-y:auto }
@@ -241,8 +222,10 @@ def main():
 
                 saved_input = gr.State()
                 with gr.Row():
-                    advanced_checkbox = gr.Checkbox(label='Advanced', value=default_prompts_checkbox, container=False, elem_classes='min_check')
-                    prompts_checkbox = gr.Checkbox(label='Prompts', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                    advanced_checkbox = gr.Checkbox(
+                        label='Advanced', value=default_prompts_checkbox, container=False, elem_classes='min_check')
+                    prompts_checkbox = gr.Checkbox(
+                        label='Prompts', value=default_prompts_checkbox, container=False, elem_classes='min_check')
                 with gr.Column(visible=default_advanced_checkbox) as advanced_column:
                     system_prompt = gr.Textbox(
                         label="System prompt", value=DEFAULT_SYSTEM_PROMPT, lines=6
