@@ -153,7 +153,8 @@ def main():
                         prompt_text = gr.Button(
                                     label="",
                                     value=f"{item['summary']}",
-                                    size='sm'
+                                    size='sm',
+                                    elem_classes="text-left-aligned"
                                 )
                         prompt_text.click(
                             fn=save_textbox_for_prompt,
