@@ -149,7 +149,7 @@ def main():
                     item = tab_data[index]
                     with gr.Group():
                         gr.HTML(
-                            f'<p style="color: black; font-weight: bold;">{item["act"]}</p>')
+                            f'<p style="color: black; font-weight: bold;">&nbsp;&nbsp;{item["act"]}</p>')
                         prompt_text = gr.Button(
                                     label="",
                                     value=f"{item['summary']}",
