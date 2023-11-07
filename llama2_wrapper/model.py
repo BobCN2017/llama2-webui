@@ -128,6 +128,7 @@ class LLAMA2_WRAPPER:
                 n_ctx=max_tokens,
                 n_batch=max_tokens,
                 verbose=verbose,
+                n_gpu_layers=-1
             )
         elif backend_type is BackendType.GPTQ:
             from auto_gptq import AutoGPTQForCausalLM
