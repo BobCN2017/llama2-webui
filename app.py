@@ -69,7 +69,7 @@ def main():
         backend_type=BACKEND_TYPE,
         max_tokens=MAX_INPUT_TOKEN_LENGTH,
         load_in_8bit=LOAD_IN_8BIT,
-        # verbose=True,
+        verbose=True,
     )
 
     def clear_and_save_textbox(message: str) -> tuple[str, str]:
