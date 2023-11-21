@@ -12,6 +12,10 @@ import logging
 
 from prompts.utils import PromtsContainer
 
+import logging
+
+from prompts.utils import PromtsContainer
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -75,6 +79,11 @@ def main():
     def clear_and_save_textbox(message: str) -> tuple[str, str]:
         logging.info("start clear_and_save_textbox")
         return "", message
+
+    def save_textbox_for_prompt(message: str) -> str:
+        logging.info("start save_textbox_from_prompt")
+        message = convert_summary_to_prompt(message)
+        return message
 
     def save_textbox_for_prompt(message: str) -> str:
         logging.info("start save_textbox_from_prompt")
