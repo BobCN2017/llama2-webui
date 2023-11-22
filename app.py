@@ -12,6 +12,10 @@ import logging
 
 from prompts.utils import PromtsContainer
 
+import logging
+
+from prompts.utils import PromtsContainer
+
 
 def main():
     parser = argparse.ArgumentParser()
