@@ -76,6 +76,11 @@ def main():
         logging.info("start clear_and_save_textbox")
         return "", message
 
+    def save_textbox_for_prompt(message: str) -> str:
+        logging.info("start save_textbox_from_prompt")
+        message = convert_summary_to_prompt(message)
+        return message
+
     def display_input(
         message: str, history: list[tuple[str, str]]
     ) -> list[tuple[str, str]]:
@@ -134,7 +139,7 @@ def main():
     default_prompts_checkbox = False
     default_advanced_checkbox = False
 
-    def save_textbox_for_prompt(summary):
+    def convert_summary_to_prompt(summary):
         return prompts_container.get_prompt_by_summary(summary)
 
     def two_columns_list(tab_data, chatbot):
@@ -199,8 +204,6 @@ def main():
         .text-left-aligned {text-align: left !important; font-size: 16px;}
     """
     with gr.Blocks(css=CSS) as demo:
-        # with gr.Row():
-        #     gr.Markdown(DESCRIPTION)
            
         with gr.Row(equal_height=True):
             with gr.Column(scale=2):
