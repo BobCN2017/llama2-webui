@@ -9,9 +9,9 @@ from distutils.util import strtobool
 from llama2_wrapper import LLAMA2_WRAPPER
 
 import logging
+from llama2_wrapper.model_formatter import ModelFormatterHolder
 
 from prompts.utils import PromtsContainer
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -194,8 +194,9 @@ def main():
                         )
                 result.append(row)
         return result
-    DESCRIPTION = """
-    # baichuan2-webui
+    model_formatter = ModelFormatterHolder.get_model_formatter()
+    DESCRIPTION = model_formatter.DESCRIPTION if model_formatter is not None else """
+    # llm-webui
     """
     CSS = """
         .contain { display: flex; flex-direction: column;}

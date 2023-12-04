@@ -5,6 +5,7 @@ from enum import Enum
 import logging
 from threading import Thread
 from typing import Any, Iterator, Union, List
+from llama2_wrapper.model_formatter import ModelFormatterHolder, Formatter
 from llama2_wrapper.types import (
     Completion,
     CompletionChunk,
@@ -98,6 +99,7 @@ class LLAMA2_WRAPPER:
 
         self.init_tokenizer()
         self.init_model()
+        ModelFormatterHolder.set_model_formatter(self.model_path)
 
     def init_model(self):
         if self.model is None:
@@ -215,6 +217,7 @@ class LLAMA2_WRAPPER:
             The generated text.
         """
         if self.backend_type is BackendType.LLAMA_CPP:
+            model_formatter = ModelFormatterHolder.get_model_formatter()
             result = self.model(
                 prompt=prompt,
                 stream=True,
@@ -223,7 +226,7 @@ class LLAMA2_WRAPPER:
                 top_p=top_p,
                 temperature=temperature,
                 repeat_penalty=repetition_penalty,
-                stop=["Q:"],
+                stop= model_formatter.stop_words if model_formatter is not None else ["Q:"],
                 **kwargs,
             )
             outputs = []
@@ -766,15 +769,14 @@ def get_prompt(
     Yields:
         prompt string.
     """
-    # texts = [f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n"]
-    # for user_input, response in chat_history:
-    #     texts.append(f"{user_input.strip()} [/INST] {response.strip()} </s><s> [INST] ")
-    # texts.append(f"{message.strip()} [/INST]")
-
-    texts = [f"{system_prompt}\n"]
-    for user_input, response in chat_history:
-        texts.append(f"Q:{user_input.strip()} A:{response.strip()}")
-    texts.append(f"Q:{message.strip()} A:")
+    model_formatter = ModelFormatterHolder.get_model_formatter()
+    if model_formatter is not None:
+        texts = model_formatter.format_texts(system_prompt,chat_history,message)
+    else:
+        texts = [f"{system_prompt}\n"]
+        for user_input, response in chat_history:
+            texts.append(f"Q:{user_input.strip()} A:{response.strip()}")
+        texts.append(f"Q:{message.strip()} A:")
     return "".join(texts)
 
 
