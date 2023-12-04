@@ -13,6 +13,7 @@ import logging
 from prompts.utils import PromtsContainer
 
 import logging
+from llama2_wrapper.model_formatter import ModelFormatterHolder
 
 from prompts.utils import PromtsContainer
 
@@ -197,9 +198,10 @@ def main():
                             api_name=False,
                         )
                 result.append(row)
-        return result
-    DESCRIPTION = """
-    # llama2-webui
+        return result    
+    model_formatter = ModelFormatterHolder.get_model_formatter()
+    DESCRIPTION = model_formatter.DESCRIPTION if model_formatter is not None else """
+    # llm-webui
     """
     CSS = """
         .contain { display: flex; flex-direction: column;}
