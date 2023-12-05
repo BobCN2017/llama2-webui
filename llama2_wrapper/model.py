@@ -5,7 +5,7 @@ from enum import Enum
 from threading import Thread
 from typing import Any, Iterator, Union, List
 import logging
-from llama_cpp import StoppingCriteriaList
+
 from llama2_wrapper.model_formatter import ModelFormatterHolder, Formatter
 from llama2_wrapper.types import (
     Completion,
@@ -101,7 +101,12 @@ class LLAMA2_WRAPPER:
         self.init_tokenizer()
         self.init_model()
         ModelFormatterHolder.set_model_formatter(self.model_path)
-        self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
+        if backend_type is BackendType.LLAMA_CPP:
+            from llama_cpp import StoppingCriteriaList
+            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
+        else:
+            from transformers import StoppingCriteriaList
+            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
 
     def init_model(self):
         if self.model is None:
@@ -128,7 +133,7 @@ class LLAMA2_WRAPPER:
     def reset_cancel(self):
         if len(self.stop_criterias) > 0:
             logging.info("restore stop criterias......")
-            self.stop_criterias= StoppingCriteriaList()
+            self.stop_criterias.pop()
 
     @classmethod
     def create_llama2_model(
@@ -143,6 +148,7 @@ class LLAMA2_WRAPPER:
                 n_batch=max_tokens,
                 verbose=verbose,
             )
+            
         elif backend_type is BackendType.GPTQ:
             from auto_gptq import AutoGPTQForCausalLM
 
@@ -261,6 +267,7 @@ class LLAMA2_WRAPPER:
                 top_p=top_p,
                 top_k=top_k,
                 repetition_penalty=repetition_penalty,
+                stopping_criteria= self.stop_criterias,
                 # num_beams=1,
             )
             generate_kwargs = (
