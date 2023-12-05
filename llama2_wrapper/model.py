@@ -4,6 +4,8 @@ import uuid
 from enum import Enum
 from threading import Thread
 from typing import Any, Iterator, Union, List
+import logging
+from llama_cpp import StoppingCriteriaList
 from llama2_wrapper.model_formatter import ModelFormatterHolder, Formatter
 from llama2_wrapper.types import (
     Completion,
@@ -99,6 +101,7 @@ class LLAMA2_WRAPPER:
         self.init_tokenizer()
         self.init_model()
         ModelFormatterHolder.set_model_formatter(self.model_path)
+        self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
 
     def init_model(self):
         if self.model is None:
@@ -116,6 +119,16 @@ class LLAMA2_WRAPPER:
         if self.backend_type is not BackendType.LLAMA_CPP:
             if self.tokenizer is None:
                 self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(self.model_path)
+
+    def cancel(self):
+        # 添加一个 StoppingCriteria，直接返回 True
+        if len(self.stop_criterias) > 0: return
+        self.stop_criterias.append(lambda _, __: True)
+
+    def reset_cancel(self):
+        if len(self.stop_criterias) > 0:
+            logging.info("restore stop criterias......")
+            self.stop_criterias= StoppingCriteriaList()
 
     @classmethod
     def create_llama2_model(
@@ -224,6 +237,7 @@ class LLAMA2_WRAPPER:
                 temperature=temperature,
                 repeat_penalty=repetition_penalty,
                 stop= model_formatter.stop_words if model_formatter is not None else ["Q:"],
+                stopping_criteria= self.stop_criterias,
                 **kwargs,
             )
             outputs = []
