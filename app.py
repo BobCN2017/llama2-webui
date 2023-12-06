@@ -106,8 +106,6 @@ def main():
             message = ""
         return history, message or ""
 
-    args.generating = False
-
     def generate(
         message: str,
         history_with_input: list[tuple[str, str]],
@@ -121,7 +119,6 @@ def main():
         if max_new_tokens > MAX_MAX_NEW_TOKENS:
             raise ValueError
         try:
-            args.generating = True
             history = history_with_input[:-1]
             generator = llama2_wrapper.run(
                 message, history, system_prompt, max_new_tokens, temperature, top_p, top_k
@@ -136,14 +133,10 @@ def main():
         except Exception as e:
             logging.exception(e)
         finally:
-            args.generating = False
-            llama2_wrapper.reset_cancel()
+            llama2_wrapper.reset()
 
-    def cancel():
-        if args.generating:
-            llama2_wrapper.cancel()
-        else:
-            logging.info("model isn't running, can't cancel")
+    def stop():        
+        llama2_wrapper.stop_generating()
 
     def check_input_token_length(
         message: str, chat_history: list[tuple[str, str]], system_prompt: str
@@ -412,7 +405,7 @@ def main():
         )
 
         cancel_button.click(
-            fn=cancel,
+            fn=stop,
             queue=False,
             api_name=False,
         )    

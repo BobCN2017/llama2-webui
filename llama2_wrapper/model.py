@@ -19,6 +19,7 @@ from llama2_wrapper.types import (
     B_SYS,
     E_SYS,
 )
+import numpy as np
 
 
 class LLAMA2_WRAPPER:
@@ -101,13 +102,16 @@ class LLAMA2_WRAPPER:
         self.init_tokenizer()
         self.init_model()
         ModelFormatterHolder.set_model_formatter(self.model_path)
+
+        self.stop_flag: bool = False
+        self.generating: bool = False
         if backend_type is BackendType.LLAMA_CPP:
             from llama_cpp import StoppingCriteriaList
-            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
+            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList([lambda _,__: self.stop_flag])
         else:
             from transformers import StoppingCriteriaList
-            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList()
-
+            self.stop_criterias :StoppingCriteriaList = StoppingCriteriaList([lambda _,__: self.stop_flag])
+    
     def init_model(self):
         if self.model is None:
             self.model = LLAMA2_WRAPPER.create_llama2_model(
@@ -125,15 +129,15 @@ class LLAMA2_WRAPPER:
             if self.tokenizer is None:
                 self.tokenizer = LLAMA2_WRAPPER.create_llama2_tokenizer(self.model_path)
 
-    def cancel(self):
-        # 添加一个 StoppingCriteria，直接返回 True
-        if len(self.stop_criterias) > 0: return
-        self.stop_criterias.append(lambda _, __: True)
+    def stop_generating(self):
+        if self.generating:
+            self.stop_flag = True
+        else:
+            logging.info("model isn't generating, can't stop")
 
-    def reset_cancel(self):
-        if len(self.stop_criterias) > 0:
-            logging.info("restore stop criterias......")
-            self.stop_criterias.pop()
+    def reset(self):
+        self.generating = False
+        self.stop_flag = False
 
     @classmethod
     def create_llama2_model(
@@ -232,6 +236,7 @@ class LLAMA2_WRAPPER:
         Yields:
             The generated text.
         """
+        self.generating = True
         if self.backend_type is BackendType.LLAMA_CPP:
             model_formatter = ModelFormatterHolder.get_model_formatter()
             result = self.model(
@@ -275,7 +280,6 @@ class LLAMA2_WRAPPER:
             )
             t = Thread(target=self.model.generate, kwargs=generate_kwargs)
             t.start()
-
             outputs = []
             for text in streamer:
                 outputs.append(text)
